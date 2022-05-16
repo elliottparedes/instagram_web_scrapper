@@ -1,56 +1,48 @@
 const puppeteer = require('puppeteer');
-
-
+const express = require('express')
+const mongoose = require('mongoose')
+const Image = require('./models/image');
+const webscrapper = require("./webscrapper");
 require('dotenv').config();
+
 
 var config={
     username: process.env.INSTAGRAMUSERNAME,
     password: process.env.INSTAGRAMPASSWORD
 }
 
-var images = [];
+const app = express();
+const port = 3001 || process.env.PORT;
+
+const uri = "mongodb+srv://apuser:test123@cluster0.j3fag.mongodb.net/ninostacos?retryWrites=true&w=majority";
+mongoose.connect(uri,{useNewUrlParser:true, useUnifiedTopology: true})
+.then((result) => {
+    console.log('connected to db');
+    app.listen(port)
+}).catch((err) => console.log(err));
+
+app.get('/refreshimages', async (req, res) => {
+
+    res.sendStatus(200);
+    await Image.deleteMany({}); //clears out the collection
+    const imgarr = new Promise((resolve, reject) => 
+    {
+        webscrapper.scrapeInstagram(process.env.INSTAGRAMPROFILE, config)
+        .then(data => {
+        data.forEach(async (item) => {
+           await Image.create({link:item.link, dateCreated: new Date})
+        })  
+      
+        resolve(data)
+        console.log("scrapped");
 
 
-async function scrapeInstagram(profile, usernameAndPasswordConfig)
-{
-    const browser = await puppeteer.launch({headless:false});
-
-    const page = await browser.newPage();
-
-    await page.goto("https://www.instagram.com/accounts/login/?source=auth_switcher");
-
-    await page.waitForTimeout(1000);
-
-    await page.type("input[name='username']", usernameAndPasswordConfig.username);
-
-    await page.type("input[name='password']", usernameAndPasswordConfig.password);
-
-    await ( await page.$("button[type='submit']")).click();
-
-    await page.waitForTimeout(5000);
-
-    await page.goto(`https://www.instagram.com/${profile}/`);
-
-    var allImages = await page.evaluate(()=>{
-        
-         
-        var allImagesarr=[];
-
-        document.querySelectorAll("img").forEach(img => {
-            var link = img.getAttribute("src");
-            allImagesarr.push({
-                link:link
-            })
-        })
-        allImagesarr.shift();
-       
-        return allImagesarr;
-
+      })
+      .catch(err => reject('scrape failed'))
     });
-    console.log(allImages);
-    console.log(allImages.length);
-}
+})
 
-    scrapeInstagram(process.env.INSTAGRAMPROFILE, config);
+
+
 
 
