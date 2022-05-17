@@ -6,7 +6,7 @@ async function scrapeInstagram(profile)
     //Open browser. Headless means that there is no browser visually being opened. 
     // For debugging headless: false is recomended, you are shown the whole process
     // of puppeteer loggin in. 
-    const browser = await puppeteer.launch({headless:true, args:['--no-sandbox']});
+    const browser = await puppeteer.launch({args:['--no-sandbox']});
     try 
     {
         const page = await browser.newPage();
