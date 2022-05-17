@@ -12,7 +12,7 @@ var config={
 }
 
 const app = express();
-const port = 3001 || process.env.PORT;
+const port = process.env.PORT || 5000;
 
 // Set up a connection string. MongoDB Atlas used in this example
 const uri = process.env.URI;
