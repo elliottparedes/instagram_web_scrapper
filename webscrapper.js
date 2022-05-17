@@ -13,7 +13,7 @@ async function scrapeInstagram(profile)
 
         await page.goto("https://www.instagram.com/accounts/login/?source=auth_switcher");
 
-        await page.waitForTimeout(5000);
+        await page.waitForTimeout(10000);
         // wait for page to load
 
         await page.type("input[name='username']", process.env.INSTAGRAMUSERNAME );
@@ -22,7 +22,7 @@ async function scrapeInstagram(profile)
 
         await ( await page.$("button[type='submit']")).click();
 
-        await page.waitForTimeout(5000);
+        await page.waitForTimeout(10000);
 
         await page.goto(`https://www.instagram.com/${profile}/`);
 
