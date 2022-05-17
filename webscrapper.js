@@ -9,7 +9,6 @@ async function scrapeInstagram(profile)
     const browser = await puppeteer.launch({headless:true, args:['--no-sandbox']});
     try 
     {
-    
         const page = await browser.newPage();
 
         await page.goto("https://www.instagram.com/accounts/login/?source=auth_switcher");
