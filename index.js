@@ -51,6 +51,27 @@ app.get('/refreshimages', async (req, res) => {
     });
 })
 
+setInterval(async () => {
+    await Image.deleteMany({}); 
+    const imgarr = new Promise((resolve, reject) => 
+    {
+        console.log("Scrapping Images from Instagram Account...");
+        webscrapper.scrapeInstagram(process.env.INSTAGRAMPROFILE, config)
+        .then(data => 
+        {
+            // loop through the array that was returned from the scrapping process
+            // add each Item to the database. 
+            data.forEach(async (item) => 
+            {
+                await Image.create({link:item.link, dateCreated: new Date})
+            })  
+        resolve(data)
+        console.log("Scrape Complete!");
+
+        }).catch(err => reject('Scrape failed.'))
+    });
+
+},60*1000 )
 
 
 

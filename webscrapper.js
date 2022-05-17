@@ -32,15 +32,22 @@ async function scrapeInstagram(profile)
 
             var allImagesarr=[];
             //Select all img tags inside of the .ySN3v div. 
-            const select =document.querySelector(".ySN3v")
-            const inner = select.querySelectorAll("img").forEach(img => {
-                var link = img.getAttribute("src");
-                allImagesarr.push({
-                    link:link
-                }) 
-            })
-
             
+            if(document.querySelector(".ySN3v")!==null)
+            {
+                const select =document.querySelector(".ySN3v")
+                const inner = select.querySelectorAll("img").forEach(img => 
+                {
+                    var link = img.getAttribute("src");
+                    allImagesarr.push({link:link}) 
+                 }) 
+
+            } 
+            else
+            {
+                console.log("There was an issue with loggin into the instagram account")
+                allImagesarr.push({link:"Need to re-connect to instagram."})
+            }
         
             return allImagesarr;
 
