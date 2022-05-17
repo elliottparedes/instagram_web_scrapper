@@ -28,50 +28,77 @@ mongoose.connect(uri,{useNewUrlParser:true, useUnifiedTopology: true})
 app.get('/refreshimages', async (req, res) => {
 
     res.sendStatus(200);
-    // Mongoose is used here. The image model is from models/image.js 
-    await Image.deleteMany({}); 
-    //Delete out database to start from empty. 
-    console.log("Deleting Images...");
+
+    
     const imgarr = new Promise((resolve, reject) => 
     {
         console.log("Scrapping Images from Instagram Account...");
         webscrapper.scrapeInstagram(process.env.INSTAGRAMPROFILE, config)
-        .then(data => 
+        .then(async data  => 
         {
             // loop through the array that was returned from the scrapping process
             // add each Item to the database. 
-            data.forEach(async (item) => 
+            if(data.length>1)
             {
-                await Image.create({link:item.link, dateCreated: new Date})
-            })  
-        resolve(data)
-        console.log("Scrape Complete!");
+                    // Mongoose is used here. The image model is from models/image.js 
+                    console.log("Deleting Images...");
+                    await Image.deleteMany({}); 
+                    //Delete out database to start from empty. 
 
-        }).catch(err => reject('Scrape failed.'))
-    });
+
+                     data.forEach(async (item) => 
+                    {
+                        await Image.create({link:item.link, dateCreated: new Date})
+                    })  
+                    resolve(data)
+                    console.log("Scrape Complete!");
+            }
+            else
+            {
+                reject();
+            }
+           
+
+        }).catch(err => {console.log(err)})
+    }).catch(err =>console.log(err));
 })
 
 setInterval(async () => {
     await Image.deleteMany({}); 
     const imgarr = new Promise((resolve, reject) => 
     {
-        console.log("Scrapping Images from Instagram Account...");
-        webscrapper.scrapeInstagram(process.env.INSTAGRAMPROFILE, config)
-        .then(data => 
+    console.log("Scrapping Images from Instagram Account...");
+    webscrapper.scrapeInstagram(process.env.INSTAGRAMPROFILE, config)
+    .then(async data  => 
+    {
+        // loop through the array that was returned from the scrapping process
+        // add each Item to the database. 
+        if(data.length>1)
         {
-            // loop through the array that was returned from the scrapping process
-            // add each Item to the database. 
-            data.forEach(async (item) => 
-            {
-                await Image.create({link:item.link, dateCreated: new Date})
-            })  
-        resolve(data)
-        console.log("Scrape Complete!");
+                // Mongoose is used here. The image model is from models/image.js 
+                console.log("Deleting Images...");
+                await Image.deleteMany({}); 
+                //Delete out database to start from empty. 
 
-        }).catch(err => reject('Scrape failed.'))
-    });
 
-},60*1000 )
+                 data.forEach(async (item) => 
+                {
+                    await Image.create({link:item.link, dateCreated: new Date("DD-MM-YYYY")})
+                })  
+                resolve(data)
+                console.log("Scrape Complete!");
+        }
+        else
+        {
+            reject();
+        }
+       
+
+    }).catch(err => {console.log(err)})
+}).catch(err =>console.log(err));
+
+},60*1000*60*24)
+// Interval will run once per day scrapping new images at the end of the day. 
 
 
 
